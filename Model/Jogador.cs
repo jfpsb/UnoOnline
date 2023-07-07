@@ -9,6 +9,7 @@ namespace UnoOnline
         private Guid _uuid;
         private string _nome;
         IList<Carta> _cartas = new ObservableCollection<Carta>();
+        public string ConnectionId { get; set; }
 
         public Guid Uuid { get { return _uuid; } set { _uuid = value; OnPropertyChanged("Uuid"); } }
         public string Nome { get { return _nome; } set { _nome = value; OnPropertyChanged("Nome"); } }

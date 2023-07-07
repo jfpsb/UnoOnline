@@ -22,14 +22,14 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="2*" />
+            <RowDefinition Height="1.5*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Grid.ColumnSpan="3"
               Grid.RowSpan="3"
               Background="IndianRed"
-              Panel.ZIndex="1"
               Opacity="0.8"
+              Panel.ZIndex="1"
               Visibility="{Binding VisibilidadeTelaLogin}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -66,7 +66,7 @@
                          FontSize="35"
                          HorizontalAlignment="Stretch"
                          Opacity="1"
-                         Text="{Binding Jogador.Nome}" />
+                         Text="{Binding Jogador1.Nome}" />
                 <Button Grid.Column="1"
                         Grid.Row="2"
                         Width="200"
@@ -79,67 +79,81 @@
                         Command="{Binding InformarNomeComando}" />
             </StackPanel>
         </Grid>
-        <ListView Grid.Column="1"
-                  Grid.Row="2"
-                  BorderBrush="Transparent"
-                  Background="MintCream"
-                  HorizontalContentAlignment="Center"
-                  HorizontalAlignment="Center"
-                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                  ItemsSource="{Binding Cartas}">
-            <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal"
-                               IsItemsHost="True"
-                               VerticalAlignment="Top" />
-                </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Button BorderBrush="Transparent"
-                            BorderThickness="1"
-                            Background="Transparent"
-                            Margin="0"
-                            Padding="0"
-                            Command="{Binding Path=DataContext.JogarCartaComando, RelativeSource={RelativeSource FindAncestor, 
+        <StackPanel Grid.Column="1"
+                    Grid.Row="2"
+                    Margin="0">
+            <TextBlock Text="{Binding Jogador1.Nome}"
+                       TextWrapping="Wrap"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       TextAlignment="Center" />
+            <TextBlock Text="{Binding Jogador1.Cartas.Count, StringFormat='Quantidade de cartas: {0}'}"
+                       TextAlignment="Center"
+                       Grid.Row="2"
+                       TextWrapping="Wrap"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       Foreground="Black" />
+            <ListView BorderBrush="Transparent"
+                      Background="MintCream"
+                      HorizontalContentAlignment="Center"
+                      HorizontalAlignment="Center"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      ItemsSource="{Binding Cartas}">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"
+                                   IsItemsHost="True"
+                                   VerticalAlignment="Top" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Button BorderBrush="Transparent"
+                                BorderThickness="1"
+                                Background="Transparent"
+                                Margin="0"
+                                Padding="0"
+                                Command="{Binding Path=DataContext.JogarCartaComando, RelativeSource={RelativeSource FindAncestor, 
 AncestorType={x:Type Window}}}"
-                            CommandParameter="{Binding}">
-                        <Image Source="{Binding Imagem}"
-                               Width="150"
-                               Height="210" />
-                    </Button>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                <StackPanel>
-                                    <Canvas Width="50"
-                                            Height="200">
-                                        <ContentPresenter />
-                                    </Canvas>
-                                </StackPanel>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver"
-                                             Value="True">
-                                        <Setter Property="Panel.ZIndex"
-                                                Value="99" />
-                                        <Setter Property="RenderTransform">
-                                            <Setter.Value>
-                                                <ScaleTransform ScaleX="1.05"
-                                                                ScaleY="1.05" />
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListView.ItemContainerStyle>
-        </ListView>
+                                CommandParameter="{Binding}">
+                            <Image Source="{Binding Imagem}"
+                                   Width="150"
+                                   Height="210" />
+                        </Button>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                    <StackPanel>
+                                        <Canvas Width="50"
+                                                Height="200">
+                                            <ContentPresenter />
+                                        </Canvas>
+                                    </StackPanel>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="True">
+                                            <Setter Property="Panel.ZIndex"
+                                                    Value="99" />
+                                            <Setter Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <ScaleTransform ScaleX="1.05"
+                                                                    ScaleY="1.05" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+        </StackPanel>
         <Grid Grid.Column="1"
               VerticalAlignment="Center">
             <Grid.RowDefinitions>
@@ -147,19 +161,19 @@ AncestorType={x:Type Window}}}"
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <TextBlock Text="Jogador"
+            <TextBlock Text="{Binding Jogador3.Nome}"
                        TextWrapping="Wrap"
-                       FontSize="24"
+                       FontSize="20"
                        FontWeight="Bold"
                        TextAlignment="Center" />
             <Image Grid.Row="1"
-                   Width="100"
-                   Height="150"
+                   MaxWidth="100"
+                   MaxHeight="150"
                    Source="/Resources/Imagens/Baralho/verso.png" />
-            <TextBlock Text="Quantidade de cartas: 0"
+            <TextBlock Text="{Binding Jogador3.Cartas.Count, StringFormat='Quantidade de cartas: {0}'}"
                        TextAlignment="Center"
                        Grid.Row="2"
-                       FontSize="24"
+                       FontSize="20"
                        TextWrapping="Wrap"
                        FontWeight="Bold"
                        Foreground="Black" />
@@ -172,19 +186,19 @@ AncestorType={x:Type Window}}}"
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <TextBlock Text="Jogador"
+            <TextBlock Text="{Binding Jogador4.Nome}"
                        TextWrapping="Wrap"
-                       FontSize="24"
+                       FontSize="20"
                        FontWeight="Bold"
                        TextAlignment="Center" />
             <Image Grid.Row="1"
-                   Width="100"
-                   Height="150"
+                   MaxWidth="100"
+                   MaxHeight="150"
                    Source="/Resources/Imagens/Baralho/verso.png" />
-            <TextBlock Text="Quantidade de cartas: 0"
+            <TextBlock Text="{Binding Jogador4.Cartas.Count, StringFormat='Quantidade de cartas: {0}'}"
                        TextAlignment="Center"
                        Grid.Row="2"
-                       FontSize="24"
+                       FontSize="20"
                        TextWrapping="Wrap"
                        FontWeight="Bold"
                        Foreground="Black" />
@@ -196,28 +210,36 @@ AncestorType={x:Type Window}}}"
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <TextBlock Text="Jogador"
+            <TextBlock Text="{Binding Jogador2.Nome}"
                        TextWrapping="Wrap"
-                       FontSize="24"
+                       FontSize="20"
                        FontWeight="Bold"
                        TextAlignment="Center" />
             <Image Grid.Row="1"
-                   Width="100"
-                   Height="150"
+                   MaxWidth="100"
+                   MaxHeight="150"
                    Source="/Resources/Imagens/Baralho/verso.png" />
-            <TextBlock Text="Quantidade de cartas: 0"
+            <TextBlock Text="{Binding Jogador2.Cartas.Count, StringFormat='Quantidade de cartas: {0}'}"
                        TextAlignment="Center"
                        Grid.Row="2"
                        TextWrapping="Wrap"
-                       FontSize="24"
+                       FontSize="20"
                        FontWeight="Bold"
                        Foreground="Black" />
         </Grid>
         <Grid Grid.Column="1"
               Grid.Row="1">
-            <Image Width="200"
-                   Height="300"
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Image Margin="150,10,150,10"
                    Source="{Binding StatusPartida.UltimaCarta.Imagem}" />
+            <TextBlock Grid.Row="1"
+                       FontSize="24"
+                       TextAlignment="Center"
+                       FontWeight="Bold"
+                       Text="{Binding StatusPartida.JogadorDaVez.Nome, StringFormat='É A VEZ DE {0}'}" />
         </Grid>
     </Grid>
 </Window>

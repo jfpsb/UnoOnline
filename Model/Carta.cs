@@ -10,7 +10,7 @@ namespace UnoOnline
         private int _quantidade;
         private string _tipo;
         private string _cor;
-        private bool _estaEmBaralho = false;
+        private bool _estaEmBaralho = true;
 
         public Guid Uuid
         {
@@ -30,7 +30,7 @@ namespace UnoOnline
 
         public string Imagem
         {
-            get { return "/Resources/Imagens/Baralho/" + _imagem; }
+            get { return _imagem; }
             set { _imagem = value;
                 OnPropertyChanged("Imagem");
             }
