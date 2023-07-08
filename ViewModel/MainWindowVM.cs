@@ -34,6 +34,7 @@ namespace UnoOnline.ViewModel
         public ICommand InformarNomeComando { get; set; }
         public ICommand EscolherCorComando { get; set; }
         public ICommand ComprarCartaComando { get; set; }
+        public ICommand GritarUnoComando { get; set; }
 
         public MainWindowVM()
         {
@@ -112,6 +113,7 @@ namespace UnoOnline.ViewModel
             InformarNomeComando = new RelayCommand(InformarNome, InformarNomeValidacao);
             EscolherCorComando = new RelayCommand(EscolherCor);
             ComprarCartaComando = new RelayCommand(ComprarCarta, ComprarCartaValidacao);
+            GritarUnoComando = new RelayCommand(GritarUno, GritarUnoValidacao);
             VisibilidadeMsgAguardandoJogadores = Visibility.Hidden;
             VisibilidadeStackPanelLogin = Visibility.Visible;
             VisibilidadeTelaLogin = Visibility.Visible;
@@ -143,6 +145,17 @@ namespace UnoOnline.ViewModel
             jogadores.AddLast(Jogador2);
             jogadores.AddLast(Jogador3);
             jogadores.AddLast(Jogador4);
+        }
+
+        private void GritarUno(object obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool GritarUnoValidacao(object arg)
+        {
+            if (StatusPartida.JogadorDaVez?.Uuid == Jogador1.Uuid && Jogador1.Cartas.Count == 2) return true;
+            return false;
         }
 
         private bool ComprarCartaValidacao(object arg)
@@ -208,13 +221,19 @@ namespace UnoOnline.ViewModel
 
             if (Jogador1.Uuid == StatusPartida.JogadorDaVez.Uuid)
             {
-                if (ultimaCarta.Cor == carta.Cor) return true;
+                if (ultimaCarta.Cor.Equals(carta.Cor)) return true;
+                if (ultimaCarta.Tipo.Contains("maisdois") && carta.Tipo.Contains("maisdois")) return true;
                 if (ultimaCarta.Numero != null && carta.Numero != null && ultimaCarta.Numero == carta.Numero) return true;
                 if (carta.Tipo.Contains("cores") || carta.Tipo.Contains("maisquatro")) return true;
-                if (ultimaCarta.Tipo.Contains("maisquatro") && ultimaCarta.Cor == carta.Cor) return true;
+                if (ultimaCarta.Tipo.Contains("maisquatro") && ultimaCarta.Cor.Equals(carta.Cor))
+                {
+                    return true;
+                };
             }
             else
             {
+                //Jogador não pode cortar se possuir apenas duas cartas
+                if (Jogador1.Cartas.Count == 2) return false;
                 if (ultimaCarta.Tipo == carta.Tipo && ultimaCarta.Numero == carta.Numero && ultimaCarta.Cor == carta.Cor) return true;
                 if (ultimaCarta.Tipo.Contains("cores") && carta.Tipo.Contains("cores")) return true;
                 if (ultimaCarta.Tipo.Contains("maisquatro") && carta.Tipo.Contains("maisquatro")) return true;

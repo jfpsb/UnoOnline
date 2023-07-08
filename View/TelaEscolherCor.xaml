@@ -55,6 +55,6 @@
                 FontSize="28"
                 FontWeight="Bold"
                 Command="{Binding EscolherCorComando}"
-                CommandParameter="vermelhor" />
+                CommandParameter="vermelho" />
     </Grid>
 </Window>

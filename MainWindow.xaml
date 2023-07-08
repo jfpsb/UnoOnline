@@ -182,8 +182,12 @@ AncestorType={x:Type Window}}}"
                     FontSize="30"
                     FontWeight="Bold"
                     Command="{Binding ComprarCartaComando}" />
-
-
+        </Grid>
+        <Grid Grid.Row="2">
+            <Button Content="GRITAR UNO"
+                    FontSize="30"
+                    FontWeight="Bold"
+                    Command="{Binding GritarUnoComando}" />
         </Grid>
         <Grid Grid.Column="1"
               VerticalAlignment="Center">
