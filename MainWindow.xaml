@@ -79,9 +79,14 @@
                         Command="{Binding InformarNomeComando}" />
             </StackPanel>
         </Grid>
-        <StackPanel Grid.Column="1"
-                    Grid.Row="2"
-                    Margin="0">
+        <Grid Grid.Column="1"
+              Grid.Row="2"
+              Margin="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <TextBlock Text="{Binding Jogador1.Nome}"
                        TextWrapping="Wrap"
                        FontSize="18"
@@ -89,12 +94,15 @@
                        TextAlignment="Center" />
             <TextBlock Text="{Binding Jogador1.Cartas.Count, StringFormat='Quantidade de cartas: {0}'}"
                        TextAlignment="Center"
-                       Grid.Row="2"
+                       Grid.Row="1"
                        TextWrapping="Wrap"
                        FontSize="18"
                        FontWeight="Bold"
                        Foreground="Black" />
-            <ListView BorderBrush="Transparent"
+            <ListView x:Name="ListViewCartas"
+                      Height="Auto"
+                      Grid.Row="2"
+                      BorderBrush="Transparent"
                       Background="MintCream"
                       HorizontalContentAlignment="Center"
                       HorizontalAlignment="Center"
@@ -117,6 +125,21 @@
                                 Command="{Binding Path=DataContext.JogarCartaComando, RelativeSource={RelativeSource FindAncestor, 
 AncestorType={x:Type Window}}}"
                                 CommandParameter="{Binding}">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Style.Resources>
+                                        <Style TargetType="Image">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled"
+                                                         Value="False">
+                                                    <Setter Property="Opacity"
+                                                            Value="0.5" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Style.Resources>
+                                </Style>
+                            </Button.Style>
                             <Image Source="{Binding Imagem}"
                                    Width="150"
                                    Height="210" />
@@ -153,7 +176,15 @@ AncestorType={x:Type Window}}}"
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
-        </StackPanel>
+        </Grid>
+        <Grid>
+            <Button Content="COMPRAR CARTA"
+                    FontSize="30"
+                    FontWeight="Bold"
+                    Command="{Binding ComprarCartaComando}" />
+
+
+        </Grid>
         <Grid Grid.Column="1"
               VerticalAlignment="Center">
             <Grid.RowDefinitions>

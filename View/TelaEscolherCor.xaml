@@ -1,0 +1,60 @@
+﻿<Window x:Class="UnoOnline.View.TelaEscolherCor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UnoOnline.View"
+        mc:Ignorable="d"
+        Title="Escolher cor"
+        Height="450"
+        Width="450"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Button Margin="10"
+                Background="Yellow"
+                Content="Amarelo"
+                FontSize="28"
+                FontWeight="Bold"
+                Command="{Binding EscolherCorComando}"
+                CommandParameter="amarelo" />
+        <Button Grid.Column="1"
+                Margin="10"
+                Background="Blue"
+                Content="Azul"
+                Foreground="White"
+                FontSize="28"
+                FontWeight="Bold"
+                Command="{Binding EscolherCorComando}"
+                CommandParameter="azul" />
+        <Button Grid.Row="1"
+                Margin="10"
+                Background="Green"
+                Content="Verde"
+                Foreground="White"
+                FontSize="28"
+                FontWeight="Bold"
+                Command="{Binding EscolherCorComando}"
+                CommandParameter="verde" />
+        <Button Grid.Column="1"
+                Grid.Row="1"
+                Margin="10"
+                Background="Red"
+                Content="Vermelho"
+                Foreground="White"
+                FontSize="28"
+                FontWeight="Bold"
+                Command="{Binding EscolherCorComando}"
+                CommandParameter="vermelhor" />
+    </Grid>
+</Window>

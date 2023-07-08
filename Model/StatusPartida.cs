@@ -43,18 +43,22 @@ namespace UnoOnline.Model
                     {
                         case "amarelo":
                             c2.Tipo = "numeral";
+                            c2.Numero = tipoArray[1];
                             c2.Cor = "amarelo";
                             break;
                         case "verde":
                             c2.Tipo = "numeral";
+                            c2.Numero = tipoArray[1];
                             c2.Cor = "verde";
                             break;
                         case "azul":
                             c2.Tipo = "numeral";
+                            c2.Numero = tipoArray[1];
                             c2.Cor = "azul";
                             break;
                         case "vermelho":
                             c2.Tipo = "numeral";
+                            c2.Numero = tipoArray[1];
                             c2.Cor = "vermelho";
                             break;
                         case "inverter":
@@ -125,6 +129,41 @@ namespace UnoOnline.Model
                 }
             }
             JogadorDaVez = linkedNode.Value;
+        }
+        public void ComprarCartas(Jogador jogador, int quantCartas)
+        {
+            var linkedNode = Jogadores.Find(jogador);
+
+            foreach (var item in RetornaCartasDoBaralho(quantCartas, false))
+            {
+                linkedNode.Value.Cartas.Add(item);
+            }
+        }
+        public Jogador RetornaProximoJogador(Jogador jogador)
+        {
+            //LinkedNode representa o node atual na vez
+            var linkedNode = Jogadores.Find(jogador);
+
+            //Na sequencia linkednode recebe o valor do proximo node da sequencia
+            if (SentidoEstaHorario)
+            {
+                linkedNode = linkedNode.Next;
+                if (linkedNode == null)
+                {
+                    linkedNode = Jogadores.Find(Jogadores.First());
+                }
+            }
+            else
+            {
+                linkedNode = linkedNode.Previous;
+                if (linkedNode == null)
+                {
+                    linkedNode = Jogadores.Find(Jogadores.Last());
+                }
+            }
+
+            //Retorno proximo jogador da sequencia
+            return linkedNode.Value;
         }
         public void AdicionaJogador(Jogador jogador)
         {

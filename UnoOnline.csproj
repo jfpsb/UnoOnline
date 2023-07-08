@@ -187,9 +187,16 @@
     <Compile Include="Model\Jogador.cs" />
     <Compile Include="Model\ObservableObject.cs" />
     <Compile Include="Model\StatusPartida.cs" />
+    <Compile Include="Services\IWindowService.cs" />
+    <Compile Include="Services\WindowService.cs" />
+    <Compile Include="ViewModel\IDialogResult.cs" />
+    <Compile Include="ViewModel\IRequestClose.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="ViewModel\UnoOnlineHubService.cs" />
+    <Compile Include="View\TelaEscolherCor.xaml.cs">
+      <DependentUpon>TelaEscolherCor.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -202,6 +209,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\TelaEscolherCor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

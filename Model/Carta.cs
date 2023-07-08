@@ -10,12 +10,15 @@ namespace UnoOnline
         private int _quantidade;
         private string _tipo;
         private string _cor;
+        private string _numero;
         private bool _estaEmBaralho = true;
 
         public Guid Uuid
         {
             get { return _uuid; }
-            set { _uuid = value;
+            set
+            {
+                _uuid = value;
                 OnPropertyChanged("Uuid");
             }
         }
@@ -23,7 +26,9 @@ namespace UnoOnline
         public string Codigo
         {
             get { return _codigo; }
-            set { _codigo = value;
+            set
+            {
+                _codigo = value;
                 OnPropertyChanged("Codigo");
             }
         }
@@ -31,7 +36,9 @@ namespace UnoOnline
         public string Imagem
         {
             get { return _imagem; }
-            set { _imagem = value;
+            set
+            {
+                _imagem = value;
                 OnPropertyChanged("Imagem");
             }
         }
@@ -42,29 +49,51 @@ namespace UnoOnline
             {
                 return _quantidade;
             }
-            set { _quantidade = value;
+            set
+            {
+                _quantidade = value;
                 OnPropertyChanged("Quantidade");
             }
         }
         public string Tipo
         {
             get => _tipo;
-            set { _tipo = value;
+            set
+            {
+                _tipo = value;
                 OnPropertyChanged("Tipo");
             }
         }
         public string Cor
         {
             get { return _cor; }
-            set { _cor = value;
+            set
+            {
+                _cor = value;
                 OnPropertyChanged("Cor");
             }
         }
         public bool EstaEmBaralho
         {
             get { return _estaEmBaralho; }
-            set { _estaEmBaralho = value;
+            set
+            {
+                _estaEmBaralho = value;
                 OnPropertyChanged("EstaEmBaralho");
+            }
+        }
+
+        public string Numero
+        {
+            get
+            {
+                return _numero;
+            }
+
+            set
+            {
+                _numero = value;
+                OnPropertyChanged("Numero");
             }
         }
     }

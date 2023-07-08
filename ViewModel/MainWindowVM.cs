@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using UnoOnline.Model;
-using static System.Net.Mime.MediaTypeNames;
+using UnoOnline.Services;
+using UnoOnline.View;
 
 namespace UnoOnline.ViewModel
 {
-    public class MainWindowVM : ObservableObject
+    public class MainWindowVM : ObservableObject, IRequestClose, IDialogResult
     {
         private ObservableCollection<Carta> _cartas = new ObservableCollection<Carta>();
         private HubConnection hubConnection;
@@ -26,21 +25,20 @@ namespace UnoOnline.ViewModel
         private Visibility _visibilidadeTelaLogin;
         private Visibility _visibilidadeStackPanelLogin;
         private Visibility _visibilidadeMsgAguardandoJogadores;
+        private string _corEscolhida;
+        private bool resultadoEscolherCor;
 
-        private string _nomeJogador1;
-        private string _nomeJogador2;
-        private string _nomeJogador3;
-        private string _nomeJogador4;
-        private int _quantCarta1;
-        private int _quantCarta2;
-        private int _quantCarta3;
-        private int _quantCarta4;
+        public event EventHandler<EventArgs> RequestClose;
 
         public ICommand JogarCartaComando { get; set; }
         public ICommand InformarNomeComando { get; set; }
+        public ICommand EscolherCorComando { get; set; }
+        public ICommand ComprarCartaComando { get; set; }
 
         public MainWindowVM()
         {
+            WindowService.RegistrarWindow<TelaEscolherCor, MainWindowVM>();
+
             hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5061/hubs/unoonline")
                 .Build();
 
@@ -112,6 +110,8 @@ namespace UnoOnline.ViewModel
 
             JogarCartaComando = new RelayCommand(JogarCarta, JogarCartaValidacao);
             InformarNomeComando = new RelayCommand(InformarNome, InformarNomeValidacao);
+            EscolherCorComando = new RelayCommand(EscolherCor);
+            ComprarCartaComando = new RelayCommand(ComprarCarta, ComprarCartaValidacao);
             VisibilidadeMsgAguardandoJogadores = Visibility.Hidden;
             VisibilidadeStackPanelLogin = Visibility.Visible;
             VisibilidadeTelaLogin = Visibility.Visible;
@@ -144,6 +144,27 @@ namespace UnoOnline.ViewModel
             jogadores.AddLast(Jogador3);
             jogadores.AddLast(Jogador4);
         }
+
+        private bool ComprarCartaValidacao(object arg)
+        {
+            if (Jogador1.Uuid == StatusPartida.JogadorDaVez?.Uuid) return true;
+
+            return false;
+        }
+
+        private async void ComprarCarta(object obj)
+        {
+            await hubConnection.SendAsync("ComprarCarta", Jogador1);
+        }
+
+        private void EscolherCor(object obj)
+        {
+            CorEscolhida = obj as string;
+            StatusPartida.UltimaCarta.Cor = CorEscolhida; //Obrigatoriamente a última carta é coringa
+            resultadoEscolherCor = true;
+            RequestClose?.Invoke(this, null);
+        }
+
         /// <summary>
         /// Envia o estado da partida para o hub após feita jogada.
         /// </summary>
@@ -158,12 +179,47 @@ namespace UnoOnline.ViewModel
         }
         private async void JogarCarta(object obj)
         {
-            await hubConnection.SendAsync("EnviaUltimaCartaJogada", (Carta)obj, Jogador1);
+            Carta carta = (Carta)obj;
+
+            if (carta.Tipo.StartsWith("coringa-maisquatro") || carta.Tipo.StartsWith("coringa-cores"))
+            {
+                //Guarda cor da carta atual caso usuário não escolha nenhuma cor na tela
+                var corAtual = StatusPartida.UltimaCarta.Cor;
+                new WindowService().ShowDialog(this, (result, vm) =>
+                {
+                    if (result == true)
+                    {
+                        carta.Cor = CorEscolhida;
+                    }
+                    else
+                    {
+                        carta.Cor = corAtual;
+                    }
+                });
+            }
+
+            await hubConnection.SendAsync("EnviaUltimaCartaJogada", carta, Jogador1);
         }
 
         private bool JogarCartaValidacao(object arg)
         {
-            if (Jogador1.Uuid == StatusPartida.JogadorDaVez.Uuid) return true;
+            Carta carta = arg as Carta;
+            var ultimaCarta = StatusPartida.UltimaCarta;
+
+            if (Jogador1.Uuid == StatusPartida.JogadorDaVez.Uuid)
+            {
+                if (ultimaCarta.Cor == carta.Cor) return true;
+                if (ultimaCarta.Numero != null && carta.Numero != null && ultimaCarta.Numero == carta.Numero) return true;
+                if (carta.Tipo.Contains("cores") || carta.Tipo.Contains("maisquatro")) return true;
+                if (ultimaCarta.Tipo.Contains("maisquatro") && ultimaCarta.Cor == carta.Cor) return true;
+            }
+            else
+            {
+                if (ultimaCarta.Tipo == carta.Tipo && ultimaCarta.Numero == carta.Numero && ultimaCarta.Cor == carta.Cor) return true;
+                if (ultimaCarta.Tipo.Contains("cores") && carta.Tipo.Contains("cores")) return true;
+                if (ultimaCarta.Tipo.Contains("maisquatro") && carta.Tipo.Contains("maisquatro")) return true;
+            }
+
             return false;
         }
         private async void InformarNome(object obj)
@@ -178,6 +234,12 @@ namespace UnoOnline.ViewModel
 
             return false;
         }
+
+        public bool? ResultadoDialog()
+        {
+            return resultadoEscolherCor;
+        }
+
         public ObservableCollection<Carta> Cartas
         {
             get
@@ -227,118 +289,6 @@ namespace UnoOnline.ViewModel
             {
                 _visibilidadeMsgAguardandoJogadores = value;
                 OnPropertyChanged("VisibilidadeMsgAguardandoJogadores");
-            }
-        }
-
-        public string NomeJogador1
-        {
-            get
-            {
-                return _nomeJogador1;
-            }
-
-            set
-            {
-                _nomeJogador1 = value;
-                OnPropertyChanged("NomeJogador1");
-            }
-        }
-
-        public string NomeJogador2
-        {
-            get
-            {
-                return _nomeJogador2;
-            }
-
-            set
-            {
-                _nomeJogador2 = value;
-                OnPropertyChanged("NomeJogador2");
-            }
-        }
-
-        public string NomeJogador3
-        {
-            get
-            {
-                return _nomeJogador3;
-            }
-
-            set
-            {
-                _nomeJogador3 = value;
-                OnPropertyChanged("NomeJogador3");
-            }
-        }
-
-        public string NomeJogador4
-        {
-            get
-            {
-                return _nomeJogador4;
-            }
-
-            set
-            {
-                _nomeJogador4 = value;
-                OnPropertyChanged("NomeJogador4");
-            }
-        }
-
-        public int QuantCarta1
-        {
-            get
-            {
-                return _quantCarta1;
-            }
-
-            set
-            {
-                _quantCarta1 = value;
-                OnPropertyChanged("QuantCarta1");
-            }
-        }
-
-        public int QuantCarta2
-        {
-            get
-            {
-                return _quantCarta2;
-            }
-
-            set
-            {
-                _quantCarta2 = value;
-                OnPropertyChanged("QuantCarta2");
-            }
-        }
-
-        public int QuantCarta3
-        {
-            get
-            {
-                return _quantCarta3;
-            }
-
-            set
-            {
-                _quantCarta3 = value;
-                OnPropertyChanged("QuantCarta3");
-            }
-        }
-
-        public int QuantCarta4
-        {
-            get
-            {
-                return _quantCarta4;
-            }
-
-            set
-            {
-                _quantCarta4 = value;
-                OnPropertyChanged("QuantCarta4");
             }
         }
         public Jogador Jogador1
@@ -393,6 +343,20 @@ namespace UnoOnline.ViewModel
             {
                 _jogador4 = value;
                 OnPropertyChanged("Jogador4");
+            }
+        }
+
+        public string CorEscolhida
+        {
+            get
+            {
+                return _corEscolhida;
+            }
+
+            set
+            {
+                _corEscolhida = value;
+                OnPropertyChanged("CorEscolhida");
             }
         }
     }
