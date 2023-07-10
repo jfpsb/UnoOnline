@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security;
+using System.Timers;
 
 namespace UnoOnline.Model
 {
@@ -11,7 +11,6 @@ namespace UnoOnline.Model
     {
         private Carta _ultimaCarta;
         private LinkedList<Jogador> _jogadores = new LinkedList<Jogador>();
-        private string _status = "Esperando jogadores";
         private bool _sentidoEstaHorario = true;
         private Jogador _jogadorDaVez;
         private Dictionary<Guid, Carta> baralho = new Dictionary<Guid, Carta>();
@@ -106,9 +105,9 @@ namespace UnoOnline.Model
         {
             SentidoEstaHorario = !SentidoEstaHorario;
         }
-        public void PassarVez(int casas)
+        public void PassarVez(int casas, Jogador jogador)
         {
-            var linkedNode = Jogadores.Find(JogadorDaVez);
+            var linkedNode = Jogadores.Find(jogador);
             for (int i = 0; i < casas; i++)
             {
                 if (SentidoEstaHorario)
@@ -190,15 +189,6 @@ namespace UnoOnline.Model
             {
                 _jogadores = value;
                 OnPropertyChanged("Jogadores");
-            }
-        }
-        public string Status
-        {
-            get => _status;
-            set
-            {
-                _status = value;
-                OnPropertyChanged("Status");
             }
         }
         public bool SentidoEstaHorario

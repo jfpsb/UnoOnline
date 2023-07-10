@@ -17,7 +17,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="2.5*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -29,7 +29,7 @@
               Grid.RowSpan="3"
               Background="IndianRed"
               Opacity="0.8"
-              Panel.ZIndex="1"
+              Panel.ZIndex="99"
               Visibility="{Binding VisibilidadeTelaLogin}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -37,13 +37,14 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Label Content="AGUARDANDO MAIS JOGADORES"
-                   FontSize="50"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Background="White"
-                   FontWeight="Bold"
-                   Visibility="{Binding VisibilidadeMsgAguardandoJogadores}" />
+            <TextBlock Text="{Binding BannerCentral}"
+                       FontSize="50"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Background="White"
+                       FontWeight="Bold"
+                       Visibility="{Binding VisibilidadeMsgAguardandoJogadores}" />
             <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Background="White"
@@ -178,16 +179,20 @@ AncestorType={x:Type Window}}}"
             </ListView>
         </Grid>
         <Grid>
-            <Button Content="COMPRAR CARTA"
-                    FontSize="30"
+            <Button FontSize="30"
                     FontWeight="Bold"
-                    Command="{Binding ComprarCartaComando}" />
+                    Command="{Binding ComprarCartaComando}">
+                <TextBlock Text="COMPRAR CARTA"
+                           TextWrapping="Wrap" />
+            </Button>
         </Grid>
         <Grid Grid.Row="2">
-            <Button Content="GRITAR UNO"
-                    FontSize="30"
+            <Button FontSize="30"
                     FontWeight="Bold"
-                    Command="{Binding GritarUnoComando}" />
+                    Command="{Binding GritarUnoComando}">
+                <TextBlock Text="GRITAR UNO"
+                           TextWrapping="Wrap" />
+            </Button>
         </Grid>
         <Grid Grid.Column="1"
               VerticalAlignment="Center">
@@ -265,16 +270,33 @@ AncestorType={x:Type Window}}}"
         <Grid Grid.Column="1"
               Grid.Row="1">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Image Margin="150,10,150,10"
+            <Label FontSize="24"
+                   FontWeight="Bold"
+                   Content="{Binding TimerJogada}"
+                   HorizontalAlignment="Center" />
+            <Image Grid.Row="1"
+                   Margin="150,10,150,10"
                    Source="{Binding StatusPartida.UltimaCarta.Imagem}" />
-            <TextBlock Grid.Row="1"
+            <TextBlock Grid.Row="2"
                        FontSize="24"
                        TextAlignment="Center"
                        FontWeight="Bold"
                        Text="{Binding StatusPartida.JogadorDaVez.Nome, StringFormat='É A VEZ DE {0}'}" />
+        </Grid>
+        <Grid Grid.Column="2"
+              Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock TextWrapping="NoWrap"
+                       Text="{Binding SequenciaEventosJogo}" />
         </Grid>
     </Grid>
 </Window>

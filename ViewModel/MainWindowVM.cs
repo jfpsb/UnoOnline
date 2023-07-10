@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,12 +20,14 @@ namespace UnoOnline.ViewModel
         private Jogador _jogador2;
         private Jogador _jogador3;
         private Jogador _jogador4;
-        private LinkedList<Jogador> jogadores = new LinkedList<Jogador>();
         private Visibility _visibilidadeTelaLogin;
         private Visibility _visibilidadeStackPanelLogin;
         private Visibility _visibilidadeMsgAguardandoJogadores;
         private string _corEscolhida;
         private bool resultadoEscolherCor;
+        private string _sequenciaEventosJogo = "";
+        private string bannerCentral = "AGUARDANDO MAIS JOGADORES";
+        private string _timerJogada;
 
         public event EventHandler<EventArgs> RequestClose;
 
@@ -43,9 +44,24 @@ namespace UnoOnline.ViewModel
             hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5061/hubs/unoonline")
                 .Build();
 
-            hubConnection.On<string>("RecebeMensagemTeste", (txt) =>
+            hubConnection.On<string>("RecebeEventoJogo", (txt) =>
             {
-                MessageBox.Show(txt);
+                SequenciaEventosJogo += $"{txt}\n";
+            });
+
+            hubConnection.On<string>("AtualizarTimer", (str) =>
+            {
+                TimerJogada = str;
+            });
+
+            hubConnection.On<Jogador>("AcabouPartida", (jogador) =>
+            {
+                BannerCentral = $"{jogador.Nome.ToUpper()} GANHOU A PARTIDA!\n\nFECHE E ABRA NOVAMENTE PARA INICIAR NOVA PARTIDA";
+                statusPartida.Jogadores.Clear();
+                VisibilidadeMsgAguardandoJogadores = Visibility.Visible;
+                VisibilidadeTelaLogin = Visibility.Visible;
+                VisibilidadeStackPanelLogin = Visibility.Hidden;
+                hubConnection.StopAsync();
             });
 
             hubConnection.On<StatusPartida>("AtualizarStatusPartida", (status) =>
@@ -56,10 +72,16 @@ namespace UnoOnline.ViewModel
                 {
                     VisibilidadeMsgAguardandoJogadores = Visibility.Visible;
                     VisibilidadeStackPanelLogin = Visibility.Hidden;
+                    VisibilidadeTelaLogin = Visibility.Visible;
+                    bannerCentral = "AGUARDANDO MAIS JOGADORES";
                 }
                 else
                 {
                     VisibilidadeTelaLogin = Visibility.Hidden;
+
+                    Jogador2 = new Jogador();
+                    Jogador3 = new Jogador();
+                    Jogador4 = new Jogador();
 
                     if (StatusPartida.Jogadores.Count == 2)
                     {
@@ -107,6 +129,7 @@ namespace UnoOnline.ViewModel
                 MessageBox.Show(msg);
             });
 
+            //Conecta ao servidor
             hubConnection.StartAsync();
 
             JogarCartaComando = new RelayCommand(JogarCarta, JogarCartaValidacao);
@@ -140,21 +163,16 @@ namespace UnoOnline.ViewModel
             {
                 Nome = "Sem Jogador"
             };
-
-            jogadores.AddLast(Jogador1);
-            jogadores.AddLast(Jogador2);
-            jogadores.AddLast(Jogador3);
-            jogadores.AddLast(Jogador4);
         }
 
         private void GritarUno(object obj)
         {
-            throw new NotImplementedException();
+            Jogador1.GritouUno = true;
         }
 
         private bool GritarUnoValidacao(object arg)
         {
-            if (StatusPartida.JogadorDaVez?.Uuid == Jogador1.Uuid && Jogador1.Cartas.Count == 2) return true;
+            if (StatusPartida.JogadorDaVez?.Uuid == Jogador1.Uuid && Jogador1.Cartas.Count == 2 && !Jogador1.GritouUno) return true;
             return false;
         }
 
@@ -167,6 +185,7 @@ namespace UnoOnline.ViewModel
 
         private async void ComprarCarta(object obj)
         {
+            Jogador1.GritouUno = false;
             await hubConnection.SendAsync("ComprarCarta", Jogador1);
         }
 
@@ -376,6 +395,48 @@ namespace UnoOnline.ViewModel
             {
                 _corEscolhida = value;
                 OnPropertyChanged("CorEscolhida");
+            }
+        }
+
+        public string SequenciaEventosJogo
+        {
+            get
+            {
+                return _sequenciaEventosJogo;
+            }
+
+            set
+            {
+                _sequenciaEventosJogo = value;
+                OnPropertyChanged("SequenciaEventosJogo");
+            }
+        }
+
+        public string BannerCentral
+        {
+            get
+            {
+                return bannerCentral;
+            }
+
+            set
+            {
+                bannerCentral = value;
+                OnPropertyChanged("BannerCentral");
+            }
+        }
+
+        public string TimerJogada
+        {
+            get
+            {
+                return _timerJogada;
+            }
+
+            set
+            {
+                _timerJogada = value;
+                OnPropertyChanged("TimerJogada");
             }
         }
     }
