@@ -2,9 +2,11 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using UnoOnline.Model;
 using UnoOnline.Services;
 using UnoOnline.View;
@@ -66,6 +68,11 @@ namespace UnoOnline.ViewModel
 
             hubConnection.On<StatusPartida>("AtualizarStatusPartida", (status) =>
             {
+                //se receber atualização da partida enquanto tela de escolher cor significa
+                //ou que jogador recebeu corte ou que jogador perdeu a vez por tempo então
+                //a tela é fechada
+                Application.Current.Dispatcher.Invoke(() => { RequestClose?.Invoke(this, null); });
+
                 StatusPartida = status;
 
                 if (StatusPartida.Jogadores.Count <= 1)
@@ -240,10 +247,12 @@ namespace UnoOnline.ViewModel
 
             if (Jogador1.Uuid == StatusPartida.JogadorDaVez.Uuid)
             {
-                if (ultimaCarta.Cor.Equals(carta.Cor)) return true;
-                if (ultimaCarta.Tipo.Contains("maisdois") && carta.Tipo.Contains("maisdois")) return true;
-                if (ultimaCarta.Numero != null && carta.Numero != null && ultimaCarta.Numero == carta.Numero) return true;
-                if (carta.Tipo.Contains("cores") || carta.Tipo.Contains("maisquatro")) return true;
+                //Pode jogar se ...
+                if (ultimaCarta.Cor.Equals(carta.Cor)) return true; //Se carta for de mesma cor
+                if (ultimaCarta.Tipo.Contains("bloqueio") && carta.Tipo.Contains("bloqueio")) return true; //Última carta for de bloqueio e possuir carta bloqueio
+                if (ultimaCarta.Tipo.Contains("maisdois") && carta.Tipo.Contains("maisdois")) return true;//Última carta for de mais dois e possuir mais dois
+                if (ultimaCarta.Numero != null && carta.Numero != null && ultimaCarta.Numero == carta.Numero) return true; //Cartas possuírem mesmo número
+                if (carta.Tipo.Contains("cores") || carta.Tipo.Contains("maisquatro")) return true; //Se for coringa mais quatro ou de cores
                 if (ultimaCarta.Tipo.Contains("maisquatro") && ultimaCarta.Cor.Equals(carta.Cor))
                 {
                     return true;

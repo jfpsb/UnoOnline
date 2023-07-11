@@ -3,29 +3,35 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Timers;
 
 namespace UnoOnline.Model
 {
     public class StatusPartida : ObservableObject
     {
-        private Carta _ultimaCarta;
-        private LinkedList<Jogador> _jogadores = new LinkedList<Jogador>();
-        private bool _sentidoEstaHorario = true;
-        private Jogador _jogadorDaVez;
-        private Dictionary<Guid, Carta> baralho = new Dictionary<Guid, Carta>();
+        private Carta _ultimaCarta; //Guarda a última carta jogada
+        private LinkedList<Jogador> _jogadores = new LinkedList<Jogador>(); //Guarda lista de jogadores
+        private bool _sentidoEstaHorario = true; //Guarda sentido em que está a sequência de jogadores
+        private Jogador _jogadorDaVez; //Guarda quem é o jogador da vez atual
+        private Dictionary<Guid, Carta> baralho = new Dictionary<Guid, Carta>(); //Guarda baralho das cartas
 
+        /// <summary>
+        /// Gera baralho em construtor.
+        /// </summary>
         public StatusPartida()
         {
             GeraBaralho();
         }
 
-        public void GeraBaralho()
+        /// <summary>
+        /// Método que gera o baralho. Dados das cartas é lido de arquivo json e desses dados é gerado um dicionário com as cartas.
+        /// </summary>
+        private void GeraBaralho()
         {
             baralho.Clear();
             var ccs = JsonConvert.DeserializeObject<List<Carta>>(File.ReadAllText("Resources/baralho-uno.json"));
             foreach (var c in ccs)
             {
+                //Cada carta possui uma quantidade, aqui instancio as cartas baseado nessa quantidade
                 for (int i = 0; i < c.Quantidade; i++)
                 {
                     var c2 = new Carta()
@@ -81,6 +87,13 @@ namespace UnoOnline.Model
                 }
             }
         }
+        /// <summary>
+        /// Seleciona cartas de forma pseudoaleatória.
+        /// </summary>
+        /// <param name="quantCartas">Quantidade de cartas a serem retornadas</param>
+        /// <param name="ignoraCoringas">Se verdadeiro não retorna cartas coringa (mais dois, mais quatro e cores).
+        /// Somente verdadeiro para retornar a primeira carta da partida.</param>
+        /// <returns>Lista de cartas</returns>
         public IList<Carta> RetornaCartasDoBaralho(int quantCartas, bool ignoraCoringas)
         {
             List<Carta> cartasSelecionadas = new List<Carta>();
@@ -88,6 +101,7 @@ namespace UnoOnline.Model
 
             for (int i = 0; i < quantCartas; i++)
             {
+                //Cartas válidas são cartas que estão presentes no baralho e não na mão de jogadores
                 cartasValidas = baralho.Where(w => w.Value.EstaEmBaralho).Select(s => s.Value).ToList();
                 var v = baralho.Where(w => !w.Value.EstaEmBaralho).ToList();
 
@@ -101,10 +115,18 @@ namespace UnoOnline.Model
 
             return cartasSelecionadas;
         }
+        /// <summary>
+        /// Inverte a ordem dos jogadores
+        /// </summary>
         public void MudarSentido()
         {
             SentidoEstaHorario = !SentidoEstaHorario;
         }
+        /// <summary>
+        /// Passa a vez do jogador para o próximo.
+        /// </summary>
+        /// <param name="casas">Números de casas a serem passadas.</param>
+        /// <param name="jogador">Jogador que ativou o evento "passar vez"</param>
         public void PassarVez(int casas, Jogador jogador)
         {
             var linkedNode = Jogadores.Find(jogador);
@@ -129,6 +151,11 @@ namespace UnoOnline.Model
             }
             JogadorDaVez = linkedNode.Value;
         }
+        /// <summary>
+        /// Adiciona cartas em baralho de jogador.
+        /// </summary>
+        /// <param name="jogador">Jogador recebendo a(s) carta(s)</param>
+        /// <param name="quantCartas">Número de cartas sendo compradas</param>
         public void ComprarCartas(Jogador jogador, int quantCartas)
         {
             var linkedNode = Jogadores.Find(jogador);
@@ -138,9 +165,14 @@ namespace UnoOnline.Model
                 linkedNode.Value.Cartas.Add(item);
             }
         }
+        /// <summary>
+        /// Retorna o próximo jogador da sequência.
+        /// </summary>
+        /// <param name="jogador">Jogador atual</param>
+        /// <returns>Próximo jogador</returns>
         public Jogador RetornaProximoJogador(Jogador jogador)
         {
-            //LinkedNode representa o node atual na vez
+            //LinkedNode representa o node do jogador que ativou esse evento
             var linkedNode = Jogadores.Find(jogador);
 
             //Na sequencia linkednode recebe o valor do proximo node da sequencia
@@ -164,6 +196,10 @@ namespace UnoOnline.Model
             //Retorno proximo jogador da sequencia
             return linkedNode.Value;
         }
+        /// <summary>
+        /// Adiciona jogador no final da sequência de jogadores.
+        /// </summary>
+        /// <param name="jogador">Jogador a ser adicionado</param>
         public void AdicionaJogador(Jogador jogador)
         {
             Jogadores.AddLast(jogador);
