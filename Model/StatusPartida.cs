@@ -130,26 +130,29 @@ namespace UnoOnline.Model
         public void PassarVez(int casas, Jogador jogador)
         {
             var linkedNode = Jogadores.Find(jogador);
-            for (int i = 0; i < casas; i++)
+            if (linkedNode != null)
             {
-                if (SentidoEstaHorario)
+                for (int i = 0; i < casas; i++)
                 {
-                    linkedNode = linkedNode.Next;
-                    if (linkedNode == null)
+                    if (SentidoEstaHorario)
                     {
-                        linkedNode = Jogadores.Find(Jogadores.First());
+                        linkedNode = linkedNode.Next;
+                        if (linkedNode == null)
+                        {
+                            linkedNode = Jogadores.Find(Jogadores.First());
+                        }
+                    }
+                    else
+                    {
+                        linkedNode = linkedNode.Previous;
+                        if (linkedNode == null)
+                        {
+                            linkedNode = Jogadores.Find(Jogadores.Last());
+                        }
                     }
                 }
-                else
-                {
-                    linkedNode = linkedNode.Previous;
-                    if (linkedNode == null)
-                    {
-                        linkedNode = Jogadores.Find(Jogadores.Last());
-                    }
-                }
+                JogadorDaVez = linkedNode.Value;
             }
-            JogadorDaVez = linkedNode.Value;
         }
         /// <summary>
         /// Adiciona cartas em baralho de jogador.

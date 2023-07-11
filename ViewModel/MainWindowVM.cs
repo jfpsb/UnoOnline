@@ -43,7 +43,7 @@ namespace UnoOnline.ViewModel
         {
             WindowService.RegistrarWindow<TelaEscolherCor, MainWindowVM>();
 
-            hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5061/hubs/unoonline")
+            hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5000/hubs/unoonline")
                 .Build();
 
             hubConnection.On<string>("RecebeEventoJogo", (txt) =>
