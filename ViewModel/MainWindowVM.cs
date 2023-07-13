@@ -2,11 +2,9 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 using UnoOnline.Model;
 using UnoOnline.Services;
 using UnoOnline.View;
@@ -43,8 +41,49 @@ namespace UnoOnline.ViewModel
         {
             WindowService.RegistrarWindow<TelaEscolherCor, MainWindowVM>();
 
+            ConectarAoServidor();
+
+            JogarCartaComando = new RelayCommand(JogarCarta, JogarCartaValidacao);
+            InformarNomeComando = new RelayCommand(InformarNome, InformarNomeValidacao);
+            EscolherCorComando = new RelayCommand(EscolherCor);
+            ComprarCartaComando = new RelayCommand(ComprarCarta, ComprarCartaValidacao);
+            GritarUnoComando = new RelayCommand(GritarUno, GritarUnoValidacao);
+            VisibilidadeMsgAguardandoJogadores = Visibility.Hidden;
+            VisibilidadeStackPanelLogin = Visibility.Visible;
+            VisibilidadeTelaLogin = Visibility.Visible;
+
+            StatusPartida = new StatusPartida();
+
+            Jogador1 = new Jogador()
+            {
+                Uuid = Guid.NewGuid(),
+                Nome = "Jogador"
+            };
+
+            Jogador2 = new Jogador()
+            {
+                Nome = "Sem Jogador"
+            };
+
+            Jogador3 = new Jogador()
+            {
+                Nome = "Sem Jogador"
+            };
+
+            Jogador4 = new Jogador()
+            {
+                Nome = "Sem Jogador"
+            };
+        }
+        private void ConectarAoServidor()
+        {
+            if (hubConnection?.State == HubConnectionState.Connected) return;
+
             hubConnection = new HubConnectionBuilder().WithUrl("http://localhost:5000/hubs/unoonline")
+                .WithAutomaticReconnect()
                 .Build();
+
+            hubConnection.Reconnected += HubConnection_Reconnected;
 
             hubConnection.On<string>("RecebeEventoJogo", (txt) =>
             {
@@ -139,37 +178,18 @@ namespace UnoOnline.ViewModel
             //Conecta ao servidor
             hubConnection.StartAsync();
 
-            JogarCartaComando = new RelayCommand(JogarCarta, JogarCartaValidacao);
-            InformarNomeComando = new RelayCommand(InformarNome, InformarNomeValidacao);
-            EscolherCorComando = new RelayCommand(EscolherCor);
-            ComprarCartaComando = new RelayCommand(ComprarCarta, ComprarCartaValidacao);
-            GritarUnoComando = new RelayCommand(GritarUno, GritarUnoValidacao);
-            VisibilidadeMsgAguardandoJogadores = Visibility.Hidden;
-            VisibilidadeStackPanelLogin = Visibility.Visible;
-            VisibilidadeTelaLogin = Visibility.Visible;
-
-            StatusPartida = new StatusPartida();
-
-            Jogador1 = new Jogador()
+            //Não conectou ao servidor
+            if (hubConnection.State == HubConnectionState.Disconnected)
             {
-                Uuid = Guid.NewGuid(),
-                Nome = "Jogador"
-            };
+                MessageBox.Show("Não foi possível conectar ao servidor.");
+            }
+        }
 
-            Jogador2 = new Jogador()
-            {
-                Nome = "Sem Jogador"
-            };
-
-            Jogador3 = new Jogador()
-            {
-                Nome = "Sem Jogador"
-            };
-
-            Jogador4 = new Jogador()
-            {
-                Nome = "Sem Jogador"
-            };
+        private async Task HubConnection_Reconnected(string arg)
+        {
+            MessageBox.Show("A conexão com o servidor havia sido perdida mas já foi reestabelecida.\nAo retornar você recebe novas cartas.");
+            Jogador1.Cartas.Clear(); //Limpa cartas ao reconectar
+            await SolicitarEntradaEmPartida();
         }
 
         private void GritarUno(object obj)
@@ -193,7 +213,16 @@ namespace UnoOnline.ViewModel
         private async void ComprarCarta(object obj)
         {
             Jogador1.GritouUno = false;
-            await hubConnection.SendAsync("ComprarCarta", Jogador1);
+
+            try
+            {
+                await hubConnection.SendAsync("ComprarCarta", Jogador1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Não foi possível conectar ao servidor! Aguarde 30 segundos para reconexão. " +
+                    $"Se após esse tempo não reconectar, será preciso fechar e abrir o jogo novamente.\n\n{ex.Message}");
+            }
         }
 
         private void EscolherCor(object obj)
@@ -203,18 +232,17 @@ namespace UnoOnline.ViewModel
             resultadoEscolherCor = true;
             RequestClose?.Invoke(this, null);
         }
-
-        /// <summary>
-        /// Envia o estado da partida para o hub após feita jogada.
-        /// </summary>
-        /// <returns></returns>
-        public async Task EnviaStatusDaPartidaParaServidor()
-        {
-            await hubConnection.SendAsync("EnviarStatusPartida", StatusPartida);
-        }
         public async Task SolicitarEntradaEmPartida()
         {
-            await hubConnection.SendAsync("EntrarEmPartida", Jogador1);
+            try
+            {
+                await hubConnection.SendAsync("EntrarEmPartida", Jogador1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Não foi possível conectar ao servidor! Aguarde 30 segundos para reconexão. " +
+                    $"Se após esse tempo não reconectar, será preciso fechar e abrir o jogo novamente.\n\n{ex.Message}");
+            }
         }
         private async void JogarCarta(object obj)
         {
@@ -237,9 +265,16 @@ namespace UnoOnline.ViewModel
                 });
             }
 
-            await hubConnection.SendAsync("EnviaUltimaCartaJogada", carta, Jogador1);
+            try
+            {
+                await hubConnection.SendAsync("EnviaUltimaCartaJogada", carta, Jogador1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Não foi possível conectar ao servidor! Aguarde 30 segundos para reconexão. " +
+                    $"Se após esse tempo não reconectar, será preciso fechar e abrir o jogo novamente.\n\n{ex.Message}");
+            }
         }
-
         private bool JogarCartaValidacao(object arg)
         {
             Carta carta = arg as Carta;
